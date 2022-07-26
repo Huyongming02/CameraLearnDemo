@@ -387,19 +387,17 @@ Face中信息
 使用FaceDetector识别到的人脸区域设置测光区域（设置与点击屏幕设置测光区域一致）
 1. 先相对于bitmap的基础上计算一个测光区域
 ```
-PointF pointF = new PointF();
-face.getMidPoint(pointF);
-int x = ((int) pointF.x * viewWidth / bitmapWidth);
-int y = ((int) pointF.y * viewHeight / bitmapHeight);
-//根据eyemid和eyedistance计算一个矩形
-int distance = (int) (face.eyesDistance() * viewWidth / bitmapWidth);
-```
-2. 将SurfaceView的测光区域转换成相机传感器的测光区域
-```
  PointF pointF = new PointF();
 face.getMidPoint(pointF);
 //根据eyemid和eyedistance计算一个矩形
 RectF rect = new RectF(pointF.x - face.eyesDistance(), pointF.y - face.eyesDistance() * 0.5f, pointF.x + face.eyesDistance(), pointF.y + face.eyesDistance() * 1.5f);
+```
+2. 将SurfaceView的测光区域转换成相机传感器的测光区域
+```
+//将矩形坐标转成camera坐标
+Matrix matrix = getCameraSensorLocationMatrix(activity, cameraId, bitmapWidth, bitmapHeight);
+RectF cameraRect = new RectF(0, 0, 0, 0);
+matrix.mapRect(cameraRect, rect);
 ```
 完整计算代码
 ```
