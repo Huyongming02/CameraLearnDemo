@@ -209,6 +209,7 @@ Bitmap destBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.
 1. 设置对焦模式
 2. 启动人脸检测
 3. 手动设置测光区域和对焦区域
+4. 曝光设置
 
 ## 3.1 设置对焦模式
 拍照的时候，我们优先使用Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE。设置之前需要先判断相机支不支持这个对焦模式，根据parameters.getSupportedFocusModes()中是否包含要设置的模式来判断相机是否支持这个对焦模式。设置对焦模式：
@@ -382,6 +383,41 @@ Face中信息
 1. confidence()：可信度，值的范围为0-1，一般超过0.3则认为可信了
 2. eyesDistance()：眼间距，值相对于bitmap的大小
 3. getMidPoint():两眼中点，值相对于bitmap的大小
+
+## 3.4 曝光设置
+曝光的默认模式是自动曝光。可设置停止自动曝光和设置曝光等级
+1. 设置是否自动曝光
+2. 设置曝光补偿
+
+### 3.4.1 设置是否自动曝光
+接口:[Camera.Parameters.setAutoExposureLock (boolean toggle)](https://developer.android.google.cn/reference/android/hardware/Camera.Parameters?hl=en#setAutoExposureLock(boolean))
+```
+public void setAutoExposureLock (boolean toggle)
+```
+True表示自动曝光被锁定，false表示自动曝光例程可以正常运行。自动曝光锁定之后，要直到调用Camera.release()或者重新设置为false之后才会失效，锁定之后依然可以调用setExposureCompensation (int value)设置曝光补偿。使用
+1. 先要调用isAutoExposureLockSupported()判断相机是否支持锁定功能
+2. 然后在调用setAutoExposureLock (boolean toggle)设置示范法锁定自动曝光
+
+
+
+
+### 3.4.2 设置曝光补偿
+什么事曝光补偿？曝光补偿是指，通过增加或者减少光线的摄入量，来提高或降低照片的亮度。
+
+曝光补偿存在一定范围，比如-2至2，或者-3至3，单位为EV，可以理解为exposure value。
+
+每增加或者降低1EV，光线的摄入量便增加或降低1倍。
+
+android camera的曝光补偿为阶段性变化，每次变化1/2或1/3，该数量级被称为step。
+
+android camera可以通过以下五个API，分别获取step，最大曝光补偿级数，最小曝光补偿级数，当前曝光补偿级数，设置曝光补偿级数。曝光补偿值=step * 曝光补偿级数。
+
+
+1. public int getMaxExposureCompensation ()：最大补偿指数
+2. public int getMinExposureCompensation ()：最小补偿指数
+3. public float getExposureCompensationStep ()：补偿的步长
+2. public void setExposureCompensation (int value)：设置补偿指数
+3. public int getExposureCompensation ()：获取补偿指数
 
 ## 4.1 设置人脸测光区域
 使用FaceDetector识别到的人脸区域设置测光区域（设置与点击屏幕设置测光区域一致）
